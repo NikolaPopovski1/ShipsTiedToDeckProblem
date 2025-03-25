@@ -12,11 +12,11 @@ struct Ship {
     Ship* parent;
 };
 
-Ship* FIND_SETds(Ship& x);
-void UNIONds(Ship& x, Ship& y);
+Ship* FIND_SET(Ship& x);
+void UNION(Ship& x, Ship& y);
 std::unique_ptr<Ship> MAKE_SET();
 
-void writeNumOfWarnings(const std::string& inputFilename, const std::string& outputFilename) {
+void writeNumOfWarnings(const std::string& inputFilename) {
     std::vector<std::unique_ptr<Ship>> ships;
     std::ostringstream outputBuffer;
 
@@ -51,7 +51,7 @@ void writeNumOfWarnings(const std::string& inputFilename, const std::string& out
                 std::string i, j;
                 iss2 >> i >> j;
 
-                UNIONds(*ships[std::stoi(i) - 1], *ships[std::stoi(j) - 1]);
+                UNION(*ships[std::stoi(i) - 1], *ships[std::stoi(j) - 1]);
             }
 
             int result = 0;
@@ -65,19 +65,11 @@ void writeNumOfWarnings(const std::string& inputFilename, const std::string& out
             ships.clear();
         }
 
-        std::ofstream outfile(outputFilename);
-        if (!outfile.is_open()) {
-            std::cerr << "Error: Unable to open '" << outputFilename << "' for writing.\n";
-            return;
-        }
-
         std::string outputContent = outputBuffer.str();
         if (!outputContent.empty() && outputContent.back() == '\n') {
             outputContent.pop_back(); // Remove the last newline character
         }
-        outfile << outputContent;
-
-        //std::cout << "File '" << inputFilename << "' copied successfully to '" << outputFilename << "'.\n";
+        std::cout << outputContent;
 
     }
     catch (const std::exception& e) {
@@ -92,9 +84,9 @@ std::unique_ptr<Ship> MAKE_SET() {
     return ship;
 }
 
-void UNIONds(Ship& x, Ship& y) {
-    Ship* p = FIND_SETds(x);
-    Ship* q = FIND_SETds(y);
+void UNION(Ship& x, Ship& y) {
+    Ship* p = FIND_SET(x);
+    Ship* q = FIND_SET(y);
     if (p == q) return;
     if (p->rank > q->rank) {
         q->parent = p;
@@ -107,9 +99,9 @@ void UNIONds(Ship& x, Ship& y) {
     }
 }
 
-Ship* FIND_SETds(Ship& x) {
+Ship* FIND_SET(Ship& x) {
     if (&x != x.parent) {
-        x.parent = FIND_SETds(*x.parent);
+        x.parent = FIND_SET(*x.parent);
     }
     return x.parent;
 }
@@ -117,9 +109,10 @@ Ship* FIND_SETds(Ship& x) {
 int main() {
     // output the time it takes to run the function
     auto start = std::chrono::high_resolution_clock::now();
-    writeNumOfWarnings("testni_primer.txt", "output.txt");
+    writeNumOfWarnings("testni_primer.txt");
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
     //std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
     return 0;
 }
+
