@@ -18,12 +18,7 @@ std::unique_ptr<Ship> MAKE_SET();
 
 void writeNumOfWarnings(const std::string& inputFilename, const std::string& outputFilename) {
     std::vector<std::unique_ptr<Ship>> ships;
-
-    std::ofstream outfile(outputFilename);
-    if (!outfile.is_open()) {
-        std::cerr << "Error: Unable to open '" << outputFilename << "' for writing.\n";
-        return;
-    }
+    std::ostringstream outputBuffer;
 
     try {
         std::ifstream infile(inputFilename);
@@ -65,12 +60,24 @@ void writeNumOfWarnings(const std::string& inputFilename, const std::string& out
                     result++;
                 }
             }
-            outfile << result << std::endl;
+            outputBuffer << result << std::endl;
 
-			ships.clear();
+            ships.clear();
         }
 
-        std::cout << "File '" << inputFilename << "' copied successfully to '" << outputFilename << "'.\n";
+        std::ofstream outfile(outputFilename);
+        if (!outfile.is_open()) {
+            std::cerr << "Error: Unable to open '" << outputFilename << "' for writing.\n";
+            return;
+        }
+
+        std::string outputContent = outputBuffer.str();
+        if (!outputContent.empty() && outputContent.back() == '\n') {
+            outputContent.pop_back(); // Remove the last newline character
+        }
+        outfile << outputContent;
+
+        //std::cout << "File '" << inputFilename << "' copied successfully to '" << outputFilename << "'.\n";
 
     }
     catch (const std::exception& e) {
@@ -108,11 +115,11 @@ Ship* FIND_SETds(Ship& x) {
 }
 
 int main() {
-	// output the time it takes to run the function
+    // output the time it takes to run the function
     auto start = std::chrono::high_resolution_clock::now();
     writeNumOfWarnings("testni_primer.txt", "output.txt");
-	auto end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> elapsed = end - start;
-	std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    //std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
     return 0;
 }
